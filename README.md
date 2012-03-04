@@ -12,7 +12,7 @@ Just include "ssrpc.client.min.js" in your JavaScript code and
 "ssrpc.server.js" in your PHP code.
 
 There's also a version that does not include Douglas Crockford's
-"json2.js" parser/stringifier combo; it's around 1.4K smaller (if you
+"json2.js" parser/stringifier combo; it's almost 3K smaller (if you
 know you'll never need it).
 
 ## Examples
