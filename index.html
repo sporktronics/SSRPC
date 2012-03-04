@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+
+    <title>SSRPC</title>
+
+    <script type="text/javascript" src="ssrpc.client.js"></script>
+
+    <script type="text/javascript">
+
+      SSRPC.cmd('poop', {size: 'veryLarge'}, 'echo.example.php', function(response){
+         alert(JSON.stringify(response));
+      });
+
+    </script>
+
+  </head>
+
+  <body>
+  </body>
+
+</html>
