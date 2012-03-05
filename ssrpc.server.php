@@ -4,7 +4,6 @@
 
    Stupid-Simple RPC
    (c) 2012 Sporktronics, LLC
-   http://www.sporktronics.com/
 
    Licensed under the Lesser GPL, version 3.0:
       http://www.gnu.org/licenses/lgpl-3.0.html
@@ -47,8 +46,6 @@ class SSRPC {
     exit();
   }
   
-  /* Private functions */
-
   // Gather up the data sent from the client and put it where it needs
   // to go.
   private function receive() {
@@ -99,41 +96,22 @@ class SSRPC {
     }
     
     if (!empty($response)) {
-      echo json_encode(array('ssrpc' => $response));
+      $responseStr = json_encode(array('ssrpc' => $response));
+      header('Content-Length: '.strlen($responseStr));
+      echo $responseStr;
     }
     
     exit();
   }
   
-  /* Public functions */
-
-  // Get the parsed data object. It looks like this:
-  //
-  // stdClass Object
-  // (
-  //    [cmd] => 'whatever'
-  //    [data] => stdClass Object, ( ... )
-  //    [error] => stdClass Object, ( ... )
-  //    [info] => stdClass Object, ( ... )
-  //    [warn] => stdClass Object, ( ... )
-  // )
-  //
-  // You access the items like this:
-  // 
-  // $ssrpc = new SSRPC();
-  // $data = $ssrpc->getData();
-  // echo $data->info->foo;
-
   public function getData() {
     return $this->receiveData;
   }
   
-  // Get the raw JSON request sent by the client
   public function getRawData() {
     return $this->rawData;
   }
   
-  // Get the parsed data object, stringified
   public function getJson() {
     return json_encode($this->getData());
   }

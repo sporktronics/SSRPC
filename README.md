@@ -18,8 +18,10 @@ know you'll never need it).
 ## Examples
 Send some data over to the server:
 
-    var callback = function(data) { ... }; /* A callback is optional! */
-    SSRPC.send( { someSuch: "Some object", someOther: 123 }, "yourserver.php", callback );
+    var callback = function(data) { ... };     /* A callback is optional! */
+    var progress = function(progress) { ... }; /* You can optionally track progress!
+                                                  (for sending and receiving) */
+    SSRPC.send( { someSuch: "Some object", someOther: 123 }, "yourserver.php", callback, progress );
 
 Get that data on the server end:
 
@@ -34,8 +36,8 @@ Prepare the client to get something back:
         console.log('info: '+info.name, info.message);
     } );
 
-    SSRPC.onData( function(info) {
-        console.log('data: '+info.name, info.message);
+    SSRPC.onData( function(data) {
+        console.log('data: '+data.name, data.message);
     } );
 
 Send something back to the client:

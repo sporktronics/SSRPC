@@ -31,95 +31,71 @@ var SSRPC = ( SSRPC || {} );
 	}
     };
 
-    // Send an object, can be anything JSON-serializable. We'll check
-    // to see if jQuery's available and use it, if not, figure out
-    // what request object the browser offers.
+    // Send an object, can be anything JSON-serializable.
     //
     // Arguments:
     //
     // data - Object to send
     // url - URL of the SSRPC-speaking server
     // callback - Optionally give what we get back to this function
+    // progress - Optionally give XMLHttpRequestProgressEvent objects
+    //            to this function
 
-    SSRPC.send = function(data, url, callback) {
+    SSRPC.send = function(data, url, callback, progress) {
 
-	if (window.jQuery !== undefined) {
-
-	    $.ajax({
-		    url: url,
-		    cache: false,
-		    type: 'POST',
-		    contentType: 'application/json',
-		    dataType: 'json',
-		    data: JSON.stringify({ ssrpc: data }),
-		    success: function(data) {
-			_this._handleResponse(data, callback);
-		    },
-		    error: function() {
+	function getHTTPObject() {
+	    var http = false;
+	    if(typeof ActiveXObject !== 'undefined') {
+		try {
+		    http = new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (e) {
+		    try {
+			http = new ActiveXObject("Microsoft.XMLHTTP");
+		    } catch (E) {
+			http = false;
+		    }
+		}
+	    } else if (window.XMLHttpRequest) {
+		try {
+		    http = new XMLHttpRequest();
+		} catch (e) {
+		    http = false;
+		}
+	    }
+	    return http;
+	}
+	
+	var http = getHTTPObject();
+	if (http) {
+	    http.open('POST', url, true);
+	    http.setRequestHeader("Content-type", "application/json");
+	    http.onprogress = progress;
+	    http.send(JSON.stringify({ ssrpc: data }));
+	    http.onreadystatechange = function() {
+		if(http.readyState === 4) {
+		    if(http.status === 200) {
+			if (!http.responseText) {
+			    _this._handleResponse({}, callback);
+			} else {
+			    _this._handleResponse(
+						  JSON.parse(http.responseText),
+						  callback);
+			}
+		    } else {
 			_this._handleResponse({ssrpc:
-					       {error:
+					       {error: 
 						{request:
 						 'Error making asynchronous request'}
 					       }}, callback);
 		    }
-		});
-
-	} else {
-	    
-	    function getHTTPObject() {
-		var http = false;
-		if(typeof ActiveXObject !== 'undefined') {
-		    try {
-			http = new ActiveXObject("Msxml2.XMLHTTP");
-		    } catch (e) {
-			try {
-			    http = new ActiveXObject("Microsoft.XMLHTTP");
-			} catch (E) {
-			    http = false;
-			}
-		    }
-		} else if (window.XMLHttpRequest) {
-		    try {
-			http = new XMLHttpRequest();
-		    } catch (e) {
-			http = false;
-		    }
 		}
-		return http;
-	    }
-
-	    var http = getHTTPObject();
-	    if (http) {
-		http.open('POST', url, true);
-		http.setRequestHeader("Content-type", "application/json");
-		http.send(JSON.stringify({ ssrpc: data }));
-		http.onreadystatechange = function() {
-		    if(http.readyState === 4) {
-			if(http.status === 200) {
-			    if (!http.responseText) {
-				_this._handleResponse({}, callback);
-			    } else {
-				_this._handleResponse(
-						      JSON.parse(http.responseText),
-						      callback);
-			    }
-			} else {
-			    _this._handleResponse({ssrpc:
-						   {error: 
-						    {request:
-						     'Error making asynchronous request'}
-						   }}, callback);
-			}
-		    }
-		};
-	    } else {
-		_this._handleResponse({ssrpc: 
-				       {error:
-					{noAjax:
-					 'Asynchronous requests not supported'}
-				       }}, callback);
-	    }
-	    
+	    };
+	} else {
+	    _this._handleResponse({ssrpc: 
+				   {error:
+				    {noAjax:
+				     'Asynchronous requests not supported'}
+				   }}, callback);
 	}
 	
     };
