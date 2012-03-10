@@ -23,11 +23,11 @@ var SSRPC = ( SSRPC || {} );
     _this._onData  = [];
     
     // Syntactic sugar for sending a command with some data.
-    SSRPC.cmd = function(cmd, data, url, callback) {
+    SSRPC.cmd = function(cmd, data, url, callback, progress) {
 	if (data) {
-	    SSRPC.send({cmd: cmd, data: data}, url, callback);
+	    SSRPC.send({cmd: cmd, data: data}, url, callback, progress);
 	} else {
-	    SSRPC.send({cmd: cmd}, url, callback);
+	    SSRPC.send({cmd: cmd}, url, callback, progress);
 	}
     };
 
@@ -39,7 +39,7 @@ var SSRPC = ( SSRPC || {} );
     // url - URL of the SSRPC-speaking server
     // callback - Optionally give what we get back to this function
     // progress - Optionally give XMLHttpRequestProgressEvent objects
-    //            to this function
+    //            to this function (on receive only)
 
     SSRPC.send = function(data, url, callback, progress) {
 
@@ -69,10 +69,12 @@ var SSRPC = ( SSRPC || {} );
 	if (http) {
 	    http.open('POST', url, true);
 	    http.setRequestHeader("Content-type", "application/json");
-	    http.onprogress = progress;
 	    http.send(JSON.stringify({ ssrpc: data }));
+
 	    http.onreadystatechange = function() {
-		if(http.readyState === 4) {
+		if(http.readyState === 2) {
+		    http.onprogress = progress;
+		} else if(http.readyState === 4) {
 		    if(http.status === 200) {
 			if (!http.responseText) {
 			    _this._handleResponse({}, callback);

@@ -20,7 +20,7 @@ Send some data over to the server:
 
     var callback = function(data) { ... };     /* A callback is optional! */
     var progress = function(progress) { ... }; /* You can optionally track progress!
-                                                  (for sending and receiving) */
+                                                  (for receiving only) */
     SSRPC.send( { someSuch: "Some object", someOther: 123 }, "yourserver.php", callback, progress );
 
 Get that data on the server end:
